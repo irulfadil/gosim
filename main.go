@@ -10,17 +10,22 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	"github.com/shopspring/decimal"
 )
 
 var db *gorm.DB
 var err error
 
-type Product struct {
-	ID    int             `json:"id"`
-	Code  string          `json:"code"`
-	Name  string          `json:"name"`
-	Price decimal.Decimal `json:"price" sql:"type:decimal(16,2);"`
+type Pegawai struct {
+	ID                int    `json:"id"`
+	Nip               int    `json:"nip"`
+	Nama              string `json:"nama"`
+	Tgllahir          string `json:"tgllahir"`
+	Jeniskelamin      string `json:"jeniskelamin"`
+	Agamaid           int    `json:"agamaid"`
+	Telfon            string `json:"telfon"`
+	Bagianid          int    `json:"bagianid"`
+	Statuskepegawaian string `json:"statuskepegawaian"`
+	Keterangan        string `json:"keterangan"`
 }
 
 type Response struct {
@@ -30,7 +35,8 @@ type Response struct {
 }
 
 func main() {
-	db, err = gorm.Open("mysql", "root:@/go_restapi_crud?charset=utf8&parseTime=True")
+	// db, err = gorm.Open("mysql", "root:@/db_sim")
+	db, err = gorm.Open("mysql", "root:@/db_sim?charset=utf8&parseTime=True")
 
 	if err != nil {
 		log.Println("Connection failed", err)
@@ -38,7 +44,7 @@ func main() {
 		log.Println("Connection established")
 	}
 
-	db.AutoMigrate(&Product{})
+	// db.AutoMigrate(&Pegawai{})
 	handleRequests()
 }
 
@@ -47,37 +53,28 @@ func handleRequests() {
 
 	myRouter := mux.NewRouter().StrictSlash(true)
 	myRouter.HandleFunc("/", homepage)
-	myRouter.HandleFunc("/api/product", createProduct).Methods("POST")
-	myRouter.HandleFunc("/api/product", getProducts).Methods("GET")
-	myRouter.HandleFunc("/api/product/{id}", getProduct).Methods("GET")
-	myRouter.HandleFunc("/api/product/{id}", updateProduct).Methods("PUT")
-	myRouter.HandleFunc("/api/product/{id}", deleteProduct).Methods("DELETE")
+	myRouter.HandleFunc("/api/pegawai", createPegawai).Methods("POST")
+	myRouter.HandleFunc("/api/pegawai", getPegawais).Methods("GET")
+	myRouter.HandleFunc("/api/pegawai/{id}", getPegawai).Methods("GET")
+	myRouter.HandleFunc("/api/pegawai/{id}", updatePegawai).Methods("PUT")
+	myRouter.HandleFunc("/api/pegawai/{id}", deletePegawai).Methods("DELETE")
 
 	log.Fatal(http.ListenAndServe(":9000", myRouter))
-
-	// myRouter.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	// 	w.Header().Set("Content-Type", "application/json")
-	// 	w.WriteHeader(http.StatusNotFound)
-
-	// 	res := Result{Code: 404, Message: "Method not found"}
-	// 	response, _ := json.Marshal(res)
-	// 	w.Write(response)
-	// })
 }
 
 func homepage(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Hello Product")
+	fmt.Fprintln(w, "Hello website sim")
 }
 
-func createProduct(w http.ResponseWriter, r *http.Request) {
-	payloads, _ := ioutil.ReadAll(r.Body) // untuk menangkap data dari POST/ JSON (contoh ini kirim dari postman)
+func createPegawai(w http.ResponseWriter, r *http.Request) {
+	payloads, _ := ioutil.ReadAll(r.Body) //untuk menangkap data dari POST/ JSON (contoh ini kirim dari postman)
 
-	var product Product
-	json.Unmarshal(payloads, &product)
+	var pegawai Pegawai
+	json.Unmarshal(payloads, &pegawai)
 
-	db.Create(&product) //create data ke tabel product
+	db.Create(&pegawai) //create data ke tabel pegawai
 
-	res := Response{Code: 200, Data: product, Message: "Success create product"}
+	res := Response{Code: 200, Data: pegawai, Message: "Success create pegawai"}
 	Response, err := json.Marshal(res)
 
 	if err != nil {
@@ -89,13 +86,13 @@ func createProduct(w http.ResponseWriter, r *http.Request) {
 	w.Write(Response)
 }
 
-func getProducts(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Endpoint hit: get products")
+func getPegawais(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Endpoint hit: get pegawai")
 
-	products := []Product{}
-	db.Find(&products)
+	pegawai := []Pegawai{}
+	db.Find(&pegawai)
 
-	res := Response{Code: 200, Data: products, Message: "Success get products"}
+	res := Response{Code: 200, Data: pegawai, Message: "Success get pegawai"}
 	Response, err := json.Marshal(res)
 
 	if err != nil {
@@ -107,15 +104,15 @@ func getProducts(w http.ResponseWriter, r *http.Request) {
 	w.Write(Response)
 }
 
-func getProduct(w http.ResponseWriter, r *http.Request) {
+func getPegawai(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	productID := vars["id"]
+	pegawaiID := vars["id"]
 
-	var product Product
+	var pegawai Pegawai
 
-	db.First(&product, productID)
+	db.First(&pegawai, pegawaiID)
 
-	res := Response{Code: 200, Data: product, Message: "Success get detail product"}
+	res := Response{Code: 200, Data: pegawai, Message: "Success get detail pegawai"}
 	Response, err := json.Marshal(res)
 
 	if err != nil {
@@ -127,20 +124,20 @@ func getProduct(w http.ResponseWriter, r *http.Request) {
 	w.Write(Response)
 }
 
-func updateProduct(w http.ResponseWriter, r *http.Request) {
+func updatePegawai(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	productID := vars["id"]
+	pegawaiID := vars["id"]
 
 	payloads, _ := ioutil.ReadAll(r.Body)
 
-	var productUpdates Product
-	json.Unmarshal(payloads, &productUpdates)
+	var pegawaiUpdates Pegawai
+	json.Unmarshal(payloads, &pegawaiUpdates)
 
-	var product Product
-	db.First(&product, productID)
-	db.Model(&product).Updates(productUpdates)
+	var pegawai Pegawai
+	db.First(&pegawai, pegawaiID)
+	db.Model(&pegawai).Updates(pegawaiUpdates)
 
-	res := Response{Code: 200, Data: product, Message: "Success update product"}
+	res := Response{Code: 200, Data: pegawai, Message: "Success update pegawai"}
 	Response, err := json.Marshal(res)
 
 	if err != nil {
@@ -152,16 +149,16 @@ func updateProduct(w http.ResponseWriter, r *http.Request) {
 	w.Write(Response)
 }
 
-func deleteProduct(w http.ResponseWriter, r *http.Request) {
+func deletePegawai(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	productID := vars["id"]
+	pegawaiID := vars["id"]
 
-	var product Product
+	var pegawai Pegawai
 
-	db.First(&product, productID)
-	db.Delete(&product)
+	db.First(&pegawai, pegawaiID)
+	db.Delete(&pegawai)
 
-	res := Response{Code: 200, Message: "Success delete product"}
+	res := Response{Code: 200, Message: "Success delete pegawai"}
 	Response, err := json.Marshal(res)
 
 	if err != nil {
