@@ -35,7 +35,6 @@ type Response struct {
 }
 
 func main() {
-	// db, err = gorm.Open("mysql", "root:@/db_sim")
 	db, err = gorm.Open("mysql", "root:@/db_sim?charset=utf8&parseTime=True")
 
 	if err != nil {
