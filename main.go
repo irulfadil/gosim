@@ -15,7 +15,7 @@ import (
 var db *gorm.DB
 var err error
 
-type Pegawai struct {
+type Employee struct {
 	ID                int    `json:"id"`
 	Nip               int    `json:"nip"`
 	Nama              string `json:"nama"`
@@ -29,7 +29,6 @@ type Pegawai struct {
 }
 
 type Response struct {
-	Code    int         `json:"code"`
 	Data    interface{} `json:"data"`
 	Message string      `json:"message"`
 }
@@ -43,37 +42,39 @@ func main() {
 		log.Println("Connection established")
 	}
 
-	// db.AutoMigrate(&Pegawai{})
+	db.AutoMigrate(&Employee{})
 	handleRequests()
 }
 
 func handleRequests() {
 	log.Println("Started Server at http://127.0.0.1:9000")
 
-	myRouter := mux.NewRouter().StrictSlash(true)
-	myRouter.HandleFunc("/", homepage)
-	myRouter.HandleFunc("/api/pegawai", createPegawai).Methods("POST")
-	myRouter.HandleFunc("/api/pegawai", getPegawais).Methods("GET")
-	myRouter.HandleFunc("/api/pegawai/{id}", getPegawai).Methods("GET")
-	myRouter.HandleFunc("/api/pegawai/{id}", updatePegawai).Methods("PUT")
-	myRouter.HandleFunc("/api/pegawai/{id}", deletePegawai).Methods("DELETE")
+	route := mux.NewRouter().StrictSlash(true) //fungsi untuk membuat router baru
 
-	log.Fatal(http.ListenAndServe(":9000", myRouter))
+	route.HandleFunc("/", Homepage)
+	route.HandleFunc("/api/employee", CreateEmployee).Methods("POST")
+	route.HandleFunc("/api/employee", GetEmployees).Methods("GET")
+	route.HandleFunc("/api/employee/{id}", GetEmployee).Methods("GET")
+	route.HandleFunc("/api/employee/{id}", UpdateEmployee).Methods("PUT")
+	route.HandleFunc("/api/employee/{id}", DeleteEmployee).Methods("DELETE")
+
+	log.Fatal(http.ListenAndServe(":9000", route))
+
 }
 
-func homepage(w http.ResponseWriter, r *http.Request) {
+func Homepage(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "Hello website sim")
 }
 
-func createPegawai(w http.ResponseWriter, r *http.Request) {
+func CreateEmployee(w http.ResponseWriter, r *http.Request) {
 	payloads, _ := ioutil.ReadAll(r.Body) //untuk menangkap data dari POST/ JSON (contoh ini kirim dari postman)
 
-	var pegawai Pegawai
-	json.Unmarshal(payloads, &pegawai)
+	var employee Employee
+	json.Unmarshal(payloads, &employee)
 
-	db.Create(&pegawai) //create data ke tabel pegawai
+	db.Create(&employee) //create data ke tabel employee
 
-	res := Response{Code: 200, Data: pegawai, Message: "Success create pegawai"}
+	res := Response{Data: employee, Message: "Success create employee"}
 	Response, err := json.Marshal(res)
 
 	if err != nil {
@@ -85,13 +86,13 @@ func createPegawai(w http.ResponseWriter, r *http.Request) {
 	w.Write(Response)
 }
 
-func getPegawais(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Endpoint hit: get pegawai")
+func GetEmployees(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Endpoint hit: get employee")
 
-	pegawai := []Pegawai{}
-	db.Find(&pegawai)
+	employee := []Employee{}
+	db.Find(&employee)
 
-	res := Response{Code: 200, Data: pegawai, Message: "Success get pegawai"}
+	res := Response{Data: employee, Message: "Success get employee"}
 	Response, err := json.Marshal(res)
 
 	if err != nil {
@@ -103,15 +104,15 @@ func getPegawais(w http.ResponseWriter, r *http.Request) {
 	w.Write(Response)
 }
 
-func getPegawai(w http.ResponseWriter, r *http.Request) {
+func GetEmployee(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	pegawaiID := vars["id"]
+	employeeID := vars["id"]
 
-	var pegawai Pegawai
+	var employee Employee
 
-	db.First(&pegawai, pegawaiID)
+	db.First(&employee, employeeID)
 
-	res := Response{Code: 200, Data: pegawai, Message: "Success get detail pegawai"}
+	res := Response{Data: employee, Message: "Success get detail employee"}
 	Response, err := json.Marshal(res)
 
 	if err != nil {
@@ -123,20 +124,20 @@ func getPegawai(w http.ResponseWriter, r *http.Request) {
 	w.Write(Response)
 }
 
-func updatePegawai(w http.ResponseWriter, r *http.Request) {
+func UpdateEmployee(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	pegawaiID := vars["id"]
+	employeeID := vars["id"]
 
 	payloads, _ := ioutil.ReadAll(r.Body)
 
-	var pegawaiUpdates Pegawai
-	json.Unmarshal(payloads, &pegawaiUpdates)
+	var employeeUpdates Employee
+	json.Unmarshal(payloads, &employeeUpdates)
 
-	var pegawai Pegawai
-	db.First(&pegawai, pegawaiID)
-	db.Model(&pegawai).Updates(pegawaiUpdates)
+	var employee Employee
+	db.First(&employee, employeeID)
+	db.Model(&employee).Updates(employeeUpdates)
 
-	res := Response{Code: 200, Data: pegawai, Message: "Success update pegawai"}
+	res := Response{Data: employee, Message: "Success update employee"}
 	Response, err := json.Marshal(res)
 
 	if err != nil {
@@ -148,16 +149,16 @@ func updatePegawai(w http.ResponseWriter, r *http.Request) {
 	w.Write(Response)
 }
 
-func deletePegawai(w http.ResponseWriter, r *http.Request) {
+func DeleteEmployee(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	pegawaiID := vars["id"]
+	employeeID := vars["id"]
 
-	var pegawai Pegawai
+	var employee Employee
 
-	db.First(&pegawai, pegawaiID)
-	db.Delete(&pegawai)
+	db.First(&employee, employeeID)
+	db.Delete(&employee)
 
-	res := Response{Code: 200, Message: "Success delete pegawai"}
+	res := Response{Message: "Success delete employee"}
 	Response, err := json.Marshal(res)
 
 	if err != nil {
