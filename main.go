@@ -51,7 +51,7 @@ func handleRequests() {
 
 	route := mux.NewRouter().StrictSlash(true) //fungsi untuk membuat router baru
 
-	route.HandleFunc("/", Homepage)
+	route.HandleFunc("/", Home)
 	route.HandleFunc("/api/employee", CreateEmployee).Methods("POST")
 	route.HandleFunc("/api/employee", GetEmployees).Methods("GET")
 	route.HandleFunc("/api/employee/{id}", GetEmployee).Methods("GET")
@@ -62,8 +62,8 @@ func handleRequests() {
 
 }
 
-func Homepage(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Hello website sim")
+func Home(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "Welcome to Sistem Informasi Managemen Pegawai")
 }
 
 func CreateEmployee(w http.ResponseWriter, r *http.Request) {
