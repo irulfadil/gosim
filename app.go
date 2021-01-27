@@ -12,11 +12,13 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// App this is Router from gorilla package
 type App struct {
 	Router *mux.Router
 	DB     *sql.DB
 }
 
+// Initialize is declaration fo database spesific
 func (a *App) Initialize(user, password, dbname string) {
 	connect := fmt.Sprintf("%s:%s@/%s", user, password, dbname)
 
@@ -30,19 +32,20 @@ func (a *App) Initialize(user, password, dbname string) {
 	a.initializeRoutes()
 }
 
+// Run this address server
 func (a *App) Run(address string) {
 	log.Fatal(http.ListenAndServe(address, a.Router))
 }
 
 func (a *App) initializeRoutes() {
 	a.Router.HandleFunc("/users", a.getUsers).Methods("GET")
-	a.Router.HandleFunc("/user", a.createUser).Methods("POST")
+	a.Router.HandleFunc("/createUser", a.createUser).Methods("POST")
 	a.Router.HandleFunc("/user/{id:[0-9]+}", a.getUser).Methods("GET")
 	a.Router.HandleFunc("/user/{id:[0-9]+}", a.updateUser).Methods("PUT")
 	a.Router.HandleFunc("/user/{id:[0-9]+}", a.deleteUser).Methods("DELETE")
 
 	a.Router.HandleFunc("/employees", a.getEmployees).Methods("GET")
-	a.Router.HandleFunc("/employee", a.createEmployee).Methods("POST")
+	a.Router.HandleFunc("/createEmployee", a.createEmployee).Methods("POST")
 	a.Router.HandleFunc("/employee/{id:[0-9]+}", a.getEmployee).Methods("GET")
 	a.Router.HandleFunc("/employee/{id:[0-9]+}", a.updateEmployee).Methods("PUT")
 	a.Router.HandleFunc("/employee/{id:[0-9]+}", a.deleteEmployee).Methods("DELETE")

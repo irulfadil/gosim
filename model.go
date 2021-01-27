@@ -6,18 +6,18 @@ import (
 )
 
 type user struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
-	Age  int    `json:"age"`
+	ID       int    `json:"id"`
+	Username string `json:"username"`
+	Eusr     string `json:"eUsr"`
 }
 
 func (u *user) getUser(db *sql.DB) error {
-	statement := fmt.Sprintf("SELECT name, age FROM users WHERE id=%d", u.ID)
-	return db.QueryRow(statement).Scan(&u.Name, &u.Age)
+	statement := fmt.Sprintf("SELECT username, eUsr FROM users WHERE id=%d", u.ID)
+	return db.QueryRow(statement).Scan(&u.Username, &u.Eusr)
 }
 
 func (u *user) updateUser(db *sql.DB) error {
-	statement := fmt.Sprintf("UPDATE users SET name='%s', age=%d WHERE id=%d", u.Name, u.Age, u.ID)
+	statement := fmt.Sprintf("UPDATE users SET username='%s', eUsr=%d WHERE id=%d", u.Username, u.Eusr, u.ID)
 	_, err := db.Exec(statement)
 	return err
 }
@@ -29,7 +29,7 @@ func (u *user) deleteUser(db *sql.DB) error {
 }
 
 func (u *user) createUser(db *sql.DB) error {
-	statement := fmt.Sprintf("INSERT INTO users (name, age) VALUES ('%s', %d)", u.Name, u.Age)
+	statement := fmt.Sprintf("INSERT INTO users (username, eUsr) VALUES ('%s', %d)", u.Username, u.Eusr)
 	_, err := db.Exec(statement)
 
 	if err != nil {
@@ -46,7 +46,7 @@ func (u *user) createUser(db *sql.DB) error {
 }
 
 func getUsers(db *sql.DB, start, count int) ([]user, error) {
-	statement := fmt.Sprintf("SELECT id, name, age FROM users LIMIT %d OFFSET %d", count, start)
+	statement := fmt.Sprintf("SELECT id, username, eUsr FROM users LIMIT %d OFFSET %d", count, start)
 	rows, err := db.Query(statement)
 
 	if err != nil {
@@ -59,7 +59,7 @@ func getUsers(db *sql.DB, start, count int) ([]user, error) {
 
 	for rows.Next() {
 		var u user
-		if err := rows.Scan(&u.ID, &u.Name, &u.Age); err != nil {
+		if err := rows.Scan(&u.ID, &u.Username, &u.Eusr); err != nil {
 			return nil, err
 		}
 		users = append(users, u)

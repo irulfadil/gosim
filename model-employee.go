@@ -5,6 +5,7 @@ import (
 	"fmt"
 )
 
+// Employee is stuct list data your employee table
 type Employee struct {
 	ID                int    `json:"id"`
 	Nip               int    `json:"nip"`
@@ -46,7 +47,7 @@ func (e *Employee) getEmployee(db *sql.DB) error {
 }
 
 func (e *Employee) createEmployee(db *sql.DB) error {
-	query := fmt.Sprintf("INSERT INTO pegawai (nip, nama, tgllahir, jeniskelamin, agamaid,telfon, bagianid, statuskepegawaian) VALUES()", &e.ID, &e.Nip, &e.Nama, &e.Tgllahir, &e.Jeniskelamin, &e.Agamaid, &e.Telfon, &e.Bagianid, &e.Statuskepegawaian)
+	query := fmt.Sprintf("INSERT INTO pegawai (nip, nama, tgllahir, jeniskelamin, agamaid, telfon, bagianid, statuskepegawaian) VALUES()", &e.ID, &e.Nip, &e.Nama, &e.Tgllahir, &e.Jeniskelamin, &e.Agamaid, &e.Telfon, &e.Bagianid, &e.Statuskepegawaian)
 	_, err := db.Exec(query)
 
 	if err != nil {
