@@ -17,7 +17,7 @@ func (u *user) getUser(db *sql.DB) error {
 }
 
 func (u *user) updateUser(db *sql.DB) error {
-	statement := fmt.Sprintf("UPDATE users SET username='%s', eUsr=%d WHERE id=%d", u.Username, u.Eusr, u.ID)
+	statement := fmt.Sprintf("UPDATE users SET username='%s', eUsr=%s WHERE id=%d", u.Username, u.Eusr, u.ID)
 	_, err := db.Exec(statement)
 	return err
 }
@@ -29,7 +29,7 @@ func (u *user) deleteUser(db *sql.DB) error {
 }
 
 func (u *user) createUser(db *sql.DB) error {
-	statement := fmt.Sprintf("INSERT INTO users (username, eUsr) VALUES ('%s', %d)", u.Username, u.Eusr)
+	statement := fmt.Sprintf("INSERT INTO users (username, eUsr) VALUES ('%s', %s)", u.Username, u.Eusr)
 	_, err := db.Exec(statement)
 
 	if err != nil {
